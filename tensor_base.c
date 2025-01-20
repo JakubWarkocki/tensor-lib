@@ -63,11 +63,6 @@ void tensor_delete(Tensor3 *tns) {
   free(tns);
 }
 
-// MACROS FOR ELEMENT ACCESS
-
-#define MATRIX_ELEM(mat, x, y) ((mat->data + x + mat->dim_x * y))
-#define TENSOR_ELEM(tns, x, y, z) (MATRIX_ELEM(*(tns->data + z), x, y)
-
 // TYPE SAFE FUNCTIONS FOR ELEMENT ACCESS
 
 float *matrix_elem(Matrix *mat, int x, int y) {
