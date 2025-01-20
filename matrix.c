@@ -1,6 +1,7 @@
 #include "tensor_base.h"
 #include "tensor_utils.h"
 #include "tensor_ops.h"
+#include "gen_buf.h"
 
 int main(int argc, char* argv[]) {
     // Create two matrices
@@ -53,6 +54,46 @@ int main(int argc, char* argv[]) {
     matrix_delete(mat1);
     matrix_delete(mat2);
     matrix_delete(result);
+
+  GenericBuffer* intbuf = gen_buf_create(sizeof(int), 100);
+  int a;
+
+  for(int j=0; j<80; j++) {
+    for(int i=0; i<10; i++) {
+      gen_buf_insert_elem(intbuf, &i);
+    }
+
+    for(int i=0; i<9; i++) {
+      gen_buf_remove_elem(intbuf, &a);
+    }
+
+  }
+  for(int j=0; j<20; j++) {
+    gen_buf_remove_elem(intbuf, &a);
+    printf("%d ", a);
+  }
+  gen_buf_delete(intbuf);
+
+  GenericBuffer* charbuf = gen_buf_create(sizeof(char), 100);
+  char ch;
+
+  // FILL
+  for(int j=0; j<80; j++) {
+    for(int i=0; i<10; i++) {
+      ch = 'a' + i%('z'-'a'+1);
+      gen_buf_insert_elem(charbuf, &ch);
+    }
+
+    for(int i=0; i<9; i++) {
+      gen_buf_remove_elem(charbuf, &ch);
+    }
+
+  }
+  for(int j=0; j<20; j++) {
+    gen_buf_remove_elem(charbuf, &ch);
+    printf("%c ", ch);
+  }
+  gen_buf_delete(charbuf);
 
     return 0;
 }

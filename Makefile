@@ -1,7 +1,7 @@
 all: matrix
 
 matrix: matrix.c build/tensor_base build/tensor_ops build/tensor_utils build/gen_buf
-	gcc -Wall -o build/matrix matrix.c build/tensor_base build/tensor_ops build/tensor_utils
+	gcc -Wall -o build/matrix matrix.c build/tensor_base build/tensor_ops build/tensor_utils build/gen_buf
 
 build/tensor_base: tensor_base.c tensor_base.h
 	gcc -Wall -c -O3 -Ofast -o build/tensor_base tensor_base.c
