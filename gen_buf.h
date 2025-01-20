@@ -7,9 +7,9 @@
 #include <semaphore.h>
 
 typedef struct {
-  pthread_mutex_t* access;
-  sem_t* sem_insert;
-  sem_t* sem_remove;
+  pthread_mutex_t access;
+  sem_t sem_insert;
+  sem_t sem_remove;
   size_t elem_size;
   size_t capacity;
   int head;
