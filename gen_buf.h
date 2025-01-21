@@ -1,7 +1,6 @@
 #ifndef GEN_BUF_H
 #define GEN_BUF_H
 
-#include <bits/pthreadtypes.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <stdlib.h>
