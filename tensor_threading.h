@@ -17,10 +17,9 @@ typedef struct {
   pthread_barrier_t* await_barrier;
 } ThreadPool;
 
-ThreadPool* thread_pool_create(int n_thr);
+ThreadPool* thread_pool_create(int max_threads);
 void thread_pool_delete(ThreadPool* tp);
-void thread_pool_start(ThreadPool* tp);
-void thread_pool_stop(ThreadPool* tp);
+void thread_pool_run(ThreadPool* tp, int running_threads);
 void thread_pool_await(ThreadPool* tp);
 
 #endif

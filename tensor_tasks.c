@@ -9,6 +9,7 @@ void single_multiplication_task(Matrix *mat1, Matrix *mat2, float *result, int r
 }
 
 void single_convolution_task(Matrix *mat, Matrix *filter, float *result, int result_x, int result_y, int stride, int add_padding) {
+  // NOT IMPLEMENTED
   return;
 }
 

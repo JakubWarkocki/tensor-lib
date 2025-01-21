@@ -3,8 +3,8 @@
 
 #include "tensor_base.h"
 
-void single_multiplication_task(Matrix* mat1, Matrix* mat2, float* result, int result_x, int result_y);
-void single_convolution_task(Matrix* mat, Matrix* filter, float* result, int result_x, int result_y, int stride, int add_padding);
+void single_multiplication_task(Matrix* mat1, Matrix* mat2, float* result, int* result_x, int* result_y);
+void single_convolution_task(Matrix* mat, Matrix* filter, float* result, int* result_x, int* result_y, int* stride, int* add_padding);
 
 typedef enum {
     MULTIPLICATION_TASK,
@@ -24,8 +24,17 @@ typedef struct {
     int conv_task_stride;
     int conv_task_add_padding;
     void (*func)(float*);
-} MatrixTaskBlock;
+} TaskBlock;
 
-void do_task_block(MatrixTaskBlock* tb);
+TaskBlock* task_block_create();
+
+void task_block_set_type(TaskBlock* tb, TaskType type);
+void task_block_bind_matrices(TaskBlock* tb, Matrix* oprand_1, Matrix* oprand_2, Matrix* result);
+void task_block_set_x_limits(TaskBlock* tb, int start_x, int end_x);
+void task_block_set_y_limits(TaskBlock* tb, int start_y, int end_y);
+void task_block_set_conv_params(TaskBlock* tb, int stride, int add_padding);
+void task_block_set_function();
+
+void task_block_run(TaskBlock* tb);
 
 #endif
