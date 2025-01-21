@@ -12,6 +12,9 @@ build/tensor_utils: tensor_utils.c tensor_utils.h build/tensor_base
 build/tensor_ops: tensor_ops.c tensor_ops.h build/tensor_base
 	gcc -Wall -c -O3 -Ofast -o build/tensor_ops tensor_ops.c
 
+build/tensor_tasks: tensor_tasks.c tensor_tasks.h build/tensor_base
+	gcc -Wall -c -O3 -Ofast -o build/tensor_tasks tensor_tasks.c
+
 build/gen_buf: gen_buf.c gen_buf.h
 	gcc -Wall -c -pthread -O3 -Ofast -o build/gen_buf gen_buf.c
 	

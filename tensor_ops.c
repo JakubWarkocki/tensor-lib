@@ -1,6 +1,6 @@
 #include "tensor_ops.h"
 
-Matrix *matrix_multiply(Matrix *mat1, Matrix *mat2, Matrix *mat) {
+Matrix* matrix_multiply(Matrix *mat1, Matrix *mat2, Matrix *mat) {
 
   if (!mat1 || !mat2 || !mat) {
     return NULL;
