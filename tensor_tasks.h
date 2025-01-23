@@ -13,7 +13,7 @@ typedef enum {
 } TaskType;
 
 typedef struct {
-    TaskType tt;
+    TaskType task_type;
     Matrix* mat1;
     Matrix* mat2;
     Matrix* dst_mat;
@@ -26,14 +26,12 @@ typedef struct {
     void (*func)(float*);
 } TaskBlock;
 
-TaskBlock* task_block_create();
-
 void task_block_set_type(TaskBlock* tb, TaskType type);
 void task_block_bind_matrices(TaskBlock* tb, Matrix* oprand_1, Matrix* oprand_2, Matrix* result);
 void task_block_set_x_limits(TaskBlock* tb, int start_x, int end_x);
 void task_block_set_y_limits(TaskBlock* tb, int start_y, int end_y);
 void task_block_set_conv_params(TaskBlock* tb, int stride, int add_padding);
-void task_block_set_function();
+void task_block_set_function(TaskBlock* tb, void (*fun)(float*));
 
 void task_block_run(TaskBlock* tb);
 
