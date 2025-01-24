@@ -22,7 +22,7 @@ typedef struct {
 GenericBuffer *gen_buf_create(int e_size, int cap);
 void gen_buf_delete(GenericBuffer *gbf);
 void gen_buf_insert_elem(GenericBuffer *gbf, void *src);
-void gen_buf_remove_elem(GenericBuffer *gbf, void *dst);
+int gen_buf_remove_elem(GenericBuffer *gbf, void *dst);
 void gen_buf_start(GenericBuffer *gbf);
 void gen_buf_stop(GenericBuffer *gbf);
 

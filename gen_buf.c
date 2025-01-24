@@ -84,14 +84,14 @@ void gen_buf_insert_elem(GenericBuffer *gbf, void *src) {
   pthread_mutex_unlock(&gbf->access);
 }
 
-void gen_buf_remove_elem(GenericBuffer *gbf, void *dst) {
+int gen_buf_remove_elem(GenericBuffer *gbf, void *dst) {
   
   pthread_mutex_lock(&gbf->access);
   while(gbf->count == 0) {
     pthread_cond_wait(&gbf->cond_remove, &gbf->access);
     if(gbf->stop_flag) {
       pthread_mutex_unlock(&gbf->access);
-      return;
+      return 0;
     }
   }
   memcpy(dst, gbf->data + (gbf->elem_size) * (gbf->tail), gbf->elem_size);
@@ -101,6 +101,7 @@ void gen_buf_remove_elem(GenericBuffer *gbf, void *dst) {
     pthread_cond_signal(&gbf->cond_insert);
   }
   pthread_mutex_unlock(&gbf->access);
+  return 1;
 }
 
 void gen_buf_start(GenericBuffer *gbf) {

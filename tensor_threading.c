@@ -13,6 +13,9 @@ void* worker_thread_routine(void* void_args) {
     pthread_mutex_lock(args->cond_block);
     pthread_cond_wait(args->start_cond, args->cond_block);
     pthread_mutex_unlock(args->cond_block);
+    while(gen_buf_remove_elem(args->task_buffer, &current_task)) {
+      task_block_run(&current_task);
+    }
   }
 
 }
