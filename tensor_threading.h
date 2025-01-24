@@ -6,12 +6,18 @@
 #include <pthread.h>
 
 typedef struct {
+  pthread_t* tid;
   GenericBuffer* task_buffer;
   pthread_cond_t* start_cond;
+  pthread_barrier_t* await_barrier;
 } WorkerThreadArgs;
+
+void* worker_thread_routine(void* args);
 
 typedef struct {
   int n_threads;
+  pthread_t* tid;
+  GenericBuffer* task_buffer;
   pthread_mutex_t* cond_block;
   pthread_cond_t* start_cond;
   pthread_barrier_t* await_barrier;
@@ -19,7 +25,7 @@ typedef struct {
 
 ThreadPool* thread_pool_create(int max_threads);
 void thread_pool_delete(ThreadPool* tp);
-void thread_pool_run(ThreadPool* tp, int running_threads);
+void thread_pool_run(ThreadPool* tp);
 void thread_pool_await(ThreadPool* tp);
 
 #endif
