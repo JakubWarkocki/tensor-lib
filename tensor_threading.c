@@ -119,5 +119,6 @@ void thread_pool_await(ThreadPool *tp) {
   pthread_mutex_lock(&tp->cond_block);
   gen_buf_stop(tp->task_buffer);
   pthread_cond_broadcast(&tp->task_buffer->cond_remove);
+  pthread_cond_broadcast(&tp->task_buffer->cond_insert);
   pthread_barrier_wait(&tp->await_barrier);
 }
