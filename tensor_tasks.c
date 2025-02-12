@@ -1,5 +1,6 @@
 #include "tensor_tasks.h"
 #include "tensor_base.h"
+#include <filesystem>
 
 void single_multiplication_task(Matrix *mat1, Matrix *mat2, float *result, int *result_x, int *result_y) {
       *result = (float)(0);
@@ -12,7 +13,6 @@ void single_convolution_task(Matrix *mat, Matrix *filter, float *result, int *re
   // NOT IMPLEMENTED
   return;
 }
-
 
 void task_block_set_type(TaskBlock *tb, TaskType type) {
   tb->task_type = type;
@@ -36,6 +36,11 @@ void task_block_set_x_limits(TaskBlock *tb, int start_x, int end_x) {
 void task_block_set_y_limits(TaskBlock *tb, int start_y, int end_y) {
   tb->start_y = start_y;
   tb->end_y = end_y;
+}
+
+void task_block_set_conv_params(TaskBlock* tb, int stride, int add_padding) {
+  tb->conv_task_stride = stride;
+  tb->conv_task_add_padding = add_padding;
 }
 
 void do_task_block(TaskBlock *tb) {
