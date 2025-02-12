@@ -1,6 +1,5 @@
 #include "tensor_tasks.h"
 #include "tensor_base.h"
-#include <filesystem>
 
 void single_multiplication_task(Matrix *mat1, Matrix *mat2, float *result, int *result_x, int *result_y) {
       *result = (float)(0);

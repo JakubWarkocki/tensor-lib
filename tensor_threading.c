@@ -95,24 +95,29 @@ ThreadPool* thread_pool_create(int max_threads, int buffer_capacity) {
 }
 
 void thread_pool_delete(ThreadPool *tp) {
-    pthread_mutex_lock(&tp->cond_block);
-    gen_buf_stop(tp->task_buffer);
-    for(int i = 0; i < tp->n_threads; i++) {
-      pthread_cancel((tp->threads+i)->tid);
-    }
-    gen_buf_delete(tp->task_buffer);
-    pthread_cond_destroy(&tp->start_cond);
-    pthread_barrier_destroy(&tp->await_barrier);
-    pthread_mutex_destroy(&tp->cond_block);
-    free(tp->threads);
-    free(tp);
+  pthread_mutex_lock(&tp->cond_block);
+  gen_buf_stop(tp->task_buffer);
+  for(int i = 0; i < tp->n_threads; i++) {
+    pthread_cancel((tp->threads+i)->tid);
+  }
+  gen_buf_delete(tp->task_buffer);
+  pthread_cond_destroy(&tp->start_cond);
+  pthread_barrier_destroy(&tp->await_barrier);
+  pthread_mutex_destroy(&tp->cond_block);
+  free(tp->threads);
+  free(tp);
 }
 
 void thread_pool_run(ThreadPool *tp) {
-  gen_buf_start(tp->task_buffer);
   pthread_mutex_lock(&tp->cond_block);
+  gen_buf_start(tp->task_buffer);
   pthread_cond_broadcast(&tp->start_cond);
   pthread_mutex_unlock(&tp->cond_block);
 }
 
-void thread_pool_await(ThreadPool *tp)
+void thread_pool_await(ThreadPool *tp) {
+  pthread_mutex_lock(&tp->cond_block);
+  gen_buf_stop(tp->task_buffer);
+  pthread_cond_broadcast(&tp->task_buffer->cond_remove);
+  pthread_barrier_wait(&tp->await_barrier);
+}
