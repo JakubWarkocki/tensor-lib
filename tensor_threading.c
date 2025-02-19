@@ -1,8 +1,4 @@
 #include "tensor_threading.h"
-#include "gen_buf.h"
-#include "tensor_tasks.h"
-#include <pthread.h>
-
 
 void* worker_thread_routine(void* void_args) {
   WorkerThreadArgs* args = (WorkerThreadArgs*) void_args;

@@ -3,7 +3,8 @@
 
 #include "tensor_base.h"
 #include "tensor_threading.h"
+#include "tensor_tasks.h"
 
-Matrix *matrix_multiply(Matrix *mat1, Matrix *mat2, Matrix *mat, ThreadPool *working_thread_pool);
+Matrix *matrix_multiply(Matrix *mat1, Matrix *mat2, Matrix *mat, ThreadPool *wtp);
 
 #endif
