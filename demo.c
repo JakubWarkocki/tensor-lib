@@ -5,7 +5,7 @@
 #include "tensor_utils.h"
 
 int main(int argc, char *argv[]) {
-
+  
   // Create thread pool
   
   ThreadPool* tp = thread_pool_create(24, 1024);
@@ -61,8 +61,9 @@ int main(int argc, char *argv[]) {
   matrix_delete(mat2);
   matrix_delete(result);
   thread_pool_delete(tp);
-
+/*
   GenericBuffer *intbuf = gen_buf_create(sizeof(int), 100);
+  gen_buf_start(intbuf);
   int a;
 
   for (int j = 0; j < 80; j++) {
@@ -81,6 +82,7 @@ int main(int argc, char *argv[]) {
   gen_buf_delete(intbuf);
 
   GenericBuffer *charbuf = gen_buf_create(sizeof(char), 100);
+  gen_buf_start(charbuf);
   char ch;
 
   // FILL
@@ -99,6 +101,6 @@ int main(int argc, char *argv[]) {
     printf("%c ", ch);
   }
   gen_buf_delete(charbuf);
-
-  return 0;
+*/
+  return 0; 
 }

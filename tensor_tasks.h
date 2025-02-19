@@ -32,7 +32,6 @@ void task_block_set_x_limits(TaskBlock* tb, int start_x, int end_x);
 void task_block_set_y_limits(TaskBlock* tb, int start_y, int end_y);
 void task_block_set_conv_params(TaskBlock* tb, int stride, int add_padding);
 void task_block_set_function(TaskBlock* tb, void (*fun)(float*));
-
 void task_block_run(TaskBlock* tb);
 
 #endif

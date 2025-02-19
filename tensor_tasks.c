@@ -41,7 +41,7 @@ void task_block_set_conv_params(TaskBlock* tb, int stride, int add_padding) {
   tb->conv_task_add_padding = add_padding;
 }
 
-void do_task_block(TaskBlock *tb) {
+void task_block_run(TaskBlock *tb) {
   switch(tb->task_type) {
     case MULTIPLICATION_TASK:
       for(int i=tb->start_x; i<=tb->end_x; i++) {
