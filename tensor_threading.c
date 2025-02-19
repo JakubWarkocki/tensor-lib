@@ -10,6 +10,7 @@ void* worker_thread_routine(void* void_args) {
     pthread_cond_wait(args->start_cond, args->cond_block);
     pthread_mutex_unlock(args->cond_block);
     while(gen_buf_remove_elem(args->task_buffer, &current_task)) {
+      printf("running a task block");
       task_block_run(&current_task);
     }
     pthread_barrier_wait(args->await_barrier);

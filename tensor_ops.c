@@ -2,6 +2,7 @@
 #include "gen_buf.h"
 #include "tensor_tasks.h"
 #include "tensor_threading.h"
+#include <stdio.h>
 
 Matrix* matrix_multiply(Matrix *mat1, Matrix *mat2, Matrix *mat, ThreadPool* wtp) {
 
@@ -22,13 +23,15 @@ Matrix* matrix_multiply(Matrix *mat1, Matrix *mat2, Matrix *mat, ThreadPool* wtp
   int x, y;
   x = mat2->dim_x;
   y = mat1->dim_y;
-  
+ 
+  printf("starting tp");
   thread_pool_run(wtp);
 
   for (int i = 0; i < y; i++) {
     for (int j = 0; j < x; j++) {
       task_block_set_y_limits(&tb, i, i);
       task_block_set_x_limits(&tb, j, j);
+      printf("inserting a task block");
       gen_buf_insert_elem(wtp->task_buffer, &tb);
       }
     }
