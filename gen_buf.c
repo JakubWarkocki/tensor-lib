@@ -1,6 +1,4 @@
 #include "gen_buf.h"
-#include <pthread.h>
-#include <semaphore.h>
 
 GenericBuffer *gen_buf_create(int e_size, int cap) {
 

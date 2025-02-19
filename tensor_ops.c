@@ -1,8 +1,8 @@
 #include "tensor_ops.h"
 
-Matrix* matrix_multiply(Matrix *mat1, Matrix *mat2, Matrix *mat) {
+Matrix* matrix_multiply(Matrix *mat1, Matrix *mat2, Matrix *mat, ThreadPool* wtp) {
 
-  if (!mat1 || !mat2 || !mat) {
+  if (!mat1 || !mat2 || !mat || !wtp) {
     return NULL;
   }
   if (mat1->dim_x != mat2->dim_y) {
