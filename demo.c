@@ -1,9 +1,15 @@
 #include "gen_buf.h"
 #include "tensor_base.h"
 #include "tensor_ops.h"
+#include "tensor_threading.h"
 #include "tensor_utils.h"
 
 int main(int argc, char *argv[]) {
+
+  // Create thread pool
+  
+  ThreadPool* tp = thread_pool_create(24, 1024);
+
   // Create two matrices
   Matrix *mat1 = matrix_create(2, 3);
   Matrix *mat2 = matrix_create(3, 2);
@@ -35,7 +41,7 @@ int main(int argc, char *argv[]) {
   }
 
   // Multiply matrices and store result
-  if (!matrix_multiply(mat1, mat2, result)) {
+  if (!matrix_multiply(mat1, mat2, result, tp)) {
     printf("Matrix multiplication failed\n");
     return 1;
   }
@@ -54,6 +60,7 @@ int main(int argc, char *argv[]) {
   matrix_delete(mat1);
   matrix_delete(mat2);
   matrix_delete(result);
+  thread_pool_delete(tp);
 
   GenericBuffer *intbuf = gen_buf_create(sizeof(int), 100);
   int a;

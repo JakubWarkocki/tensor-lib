@@ -1,7 +1,7 @@
 all: matrix
 
-matrix: matrix.c build/tensor_base build/tensor_ops build/tensor_utils build/gen_buf
-	gcc -Wall -o build/matrix matrix.c build/tensor_base build/tensor_ops build/tensor_utils build/gen_buf
+demo: demo.c build/tensor_base build/tensor_ops build/tensor_utils build/gen_buf build/tensor_threading
+	gcc -Wall -o build/matrix matrix.c build/tensor_base build/tensor_ops build/tensor_utils build/gen_buf build/tensor_threading
 
 build/tensor_base: tensor_base.c tensor_base.h
 	gcc -Wall -c -O3 -Ofast -o build/tensor_base tensor_base.c
@@ -17,6 +17,9 @@ build/tensor_tasks: tensor_tasks.c tensor_tasks.h build/tensor_base
 
 build/gen_buf: gen_buf.c gen_buf.h
 	gcc -Wall -c -pthread -O3 -Ofast -o build/gen_buf gen_buf.c
+
+build/tensor_threading: tensor_threading.c tensor_threading.h
+	gcc -Wall -c -pthread -O3 -Ofast -o build/tensor_threading tensor_threading.c
 	
 .PHONY: clean all
 
