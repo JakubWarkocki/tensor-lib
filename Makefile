@@ -1,4 +1,4 @@
-all: matrix
+all: demo
 
 demo: demo.c build/tensor_base build/tensor_ops build/tensor_utils build/gen_buf build/tensor_threading
 	gcc -Wall -o build/matrix matrix.c build/tensor_base build/tensor_ops build/tensor_utils build/gen_buf build/tensor_threading
