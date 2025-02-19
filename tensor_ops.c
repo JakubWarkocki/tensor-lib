@@ -24,7 +24,7 @@ Matrix* matrix_multiply(Matrix *mat1, Matrix *mat2, Matrix *mat, ThreadPool* wtp
   x = mat2->dim_x;
   y = mat1->dim_y;
  
-  printf("starting tp");
+  printf("%s", "starting tp");
   thread_pool_run(wtp);
 
   for (int i = 0; i < y; i++) {
