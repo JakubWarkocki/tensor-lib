@@ -7,7 +7,7 @@ int main(int argc, char *argv[]) {
   
   // Create thread pool
   
-  ThreadPool* tp = thread_pool_create(5, 1000);
+  ThreadPool* tp = thread_pool_create(1, 10);
 
   // Create two matrices
   Matrix *mat1 = matrix_create(3, 3);
@@ -61,6 +61,9 @@ int main(int argc, char *argv[]) {
   matrix_delete(result);
   thread_pool_delete(tp);
 
+
+
+  printf("\nGeneric buffer test (int) :\n");
   GenericBuffer *intbuf = gen_buf_create(sizeof(int), 100);
   gen_buf_start(intbuf);
   int a;
@@ -80,11 +83,12 @@ int main(int argc, char *argv[]) {
   }
   gen_buf_delete(intbuf);
 
+
+  printf("\nGeneric buffer test (char) :\n");
   GenericBuffer *charbuf = gen_buf_create(sizeof(char), 100);
   gen_buf_start(charbuf);
   char ch;
 
-  // FILL
   for (int j = 0; j < 80; j++) {
     for (int i = 0; i < 10; i++) {
       ch = 'a' + i % ('z' - 'a' + 1);

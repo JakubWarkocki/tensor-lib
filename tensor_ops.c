@@ -23,19 +23,20 @@ Matrix* matrix_multiply(Matrix *mat1, Matrix *mat2, Matrix *mat, ThreadPool* wtp
   x = mat2->dim_x;
   y = mat1->dim_y;
  
-  fprintf(stderr, "Starting thread pool: MAIN THREAD \n");
+  fprintf(stderr, "MAIN THREAD Requesting threads to enter a new thread pool cycle \n");
   thread_pool_run(wtp);
 
   for (int i = 0; i < y; i++) {
     for (int j = 0; j < x; j++) {
       task_block_set_y_limits(&tb, i, i);
       task_block_set_x_limits(&tb, j, j);
-      fprintf(stderr, "Scheduling task block %d %d MAIN THREAD\n", i, j);
-          gen_buf_insert_elem(wtp->task_buffer, &tb);
-        }
-      }
+      fprintf(stderr, "MAIN THREAD Scheduling task block %d %d\n", i, j);
+      gen_buf_insert_elem(wtp->task_buffer, &tb);
+    }
+  }
   
-  fprintf(stderr, "Waiting for thread pool MAIN THREAD\n");
+  fprintf(stderr, "MAIN THREAD Waiting for thread pool to finish cycle \n");
   thread_pool_await(wtp);
+  fprintf(stderr, "MAIN THREAD All threads have finished cycle \n");
   return mat;
 }

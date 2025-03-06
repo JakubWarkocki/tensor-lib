@@ -8,15 +8,16 @@ void* worker_thread_routine(void* void_args) {
   pthread_barrier_wait(args->await_barrier);
   while(1) {
     pthread_mutex_lock(args->cond_block);
-    fprintf(stderr, "%lu Waiting for this thread pool cycle to be started \n", args->tid);
+    fprintf(stderr, "%lu Waiting for request to enter a new thread pool cycle  \n", args->tid);
     pthread_cond_wait(args->start_cond, args->cond_block);
+    fprintf(stderr, "%lu Entered thread pool cycle \n", args->tid);
     pthread_mutex_unlock(args->cond_block);
     while(gen_buf_remove_elem(args->task_buffer, &current_task)) {
       fprintf(stderr, "%lu Running a task block \n", args->tid);
       task_block_run(&current_task);
       fprintf(stderr, "%lu Finished a task block \n", args->tid);
     }
-    fprintf(stderr, "%lu Cycle has finished... \n", args->tid);
+    fprintf(stderr, "%lu Finished thread pool cycle \n", args->tid);
     pthread_barrier_wait(args->await_barrier);
   }
 
@@ -118,6 +119,8 @@ void thread_pool_run(ThreadPool *tp) {
 }
 
 void thread_pool_await(ThreadPool *tp) {
+  pthread_mutex_lock(&tp->cond_block);
   gen_buf_stop(tp->task_buffer);
+  pthread_mutex_unlock(&tp->cond_block);
   pthread_barrier_wait(&tp->await_barrier);
 }
