@@ -1,18 +1,22 @@
 #include "tensor_threading.h"
+#include <pthread.h>
+#include <stdio.h>
 
 void* worker_thread_routine(void* void_args) {
   WorkerThreadArgs* args = (WorkerThreadArgs*) void_args;
-
   TaskBlock current_task;
-
+  pthread_barrier_wait(args->await_barrier);
   while(1) {
     pthread_mutex_lock(args->cond_block);
+    fprintf(stderr, "%lu Waiting for this thread pool cycle to be started \n", args->tid);
     pthread_cond_wait(args->start_cond, args->cond_block);
     pthread_mutex_unlock(args->cond_block);
     while(gen_buf_remove_elem(args->task_buffer, &current_task)) {
-      printf("running a task block");
+      fprintf(stderr, "%lu Running a task block \n", args->tid);
       task_block_run(&current_task);
+      fprintf(stderr, "%lu Finished a task block \n", args->tid);
     }
+    fprintf(stderr, "%lu Cycle has finished... \n", args->tid);
     pthread_barrier_wait(args->await_barrier);
   }
 
@@ -88,6 +92,7 @@ ThreadPool* thread_pool_create(int max_threads, int buffer_capacity) {
     }
     pthread_detach((new_tp->threads+i)->tid);
   }
+  pthread_barrier_wait(&new_tp->await_barrier);
   return new_tp;
 }
 
@@ -108,14 +113,11 @@ void thread_pool_delete(ThreadPool *tp) {
 void thread_pool_run(ThreadPool *tp) {
   pthread_mutex_lock(&tp->cond_block);
   gen_buf_start(tp->task_buffer);
-  pthread_cond_broadcast(&tp->start_cond);
   pthread_mutex_unlock(&tp->cond_block);
+  pthread_cond_broadcast(&tp->start_cond);
 }
 
 void thread_pool_await(ThreadPool *tp) {
-  pthread_mutex_lock(&tp->cond_block);
   gen_buf_stop(tp->task_buffer);
-  pthread_cond_broadcast(&tp->task_buffer->cond_remove);
-  pthread_cond_broadcast(&tp->task_buffer->cond_insert);
   pthread_barrier_wait(&tp->await_barrier);
 }

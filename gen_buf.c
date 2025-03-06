@@ -1,4 +1,5 @@
 #include "gen_buf.h"
+#include <pthread.h>
 
 GenericBuffer *gen_buf_create(int e_size, int cap) {
 
@@ -86,6 +87,10 @@ int gen_buf_remove_elem(GenericBuffer *gbf, void *dst) {
   
   pthread_mutex_lock(&gbf->access);
   while(gbf->count == 0) {
+    if(gbf->stop_flag) {
+      pthread_mutex_unlock(&gbf->access);
+      return 0;
+    }
     pthread_cond_wait(&gbf->cond_remove, &gbf->access);
     if(gbf->stop_flag) {
       pthread_mutex_unlock(&gbf->access);
@@ -110,6 +115,7 @@ void gen_buf_start(GenericBuffer *gbf) {
 
 void gen_buf_stop(GenericBuffer* gbf) {
   pthread_mutex_lock(&gbf->access);
+  pthread_cond_broadcast(&gbf->cond_remove);
   gbf->stop_flag = 1;
   pthread_mutex_unlock(&gbf->access);
 }
