@@ -15,13 +15,14 @@ typedef struct {
 
 void* worker_thread_routine(void* args);
 
-typedef struct {
+typedef struct s_thread_pool {
   int n_threads;
   WorkerThreadArgs* threads;
   GenericBuffer* task_buffer;
   pthread_mutex_t cond_block;
   pthread_cond_t start_cond;
   pthread_barrier_t await_barrier;
+  int is_running;
 } ThreadPool;
 
 ThreadPool* thread_pool_create(int max_threads, int buffer_capacity);

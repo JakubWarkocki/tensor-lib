@@ -2,12 +2,11 @@
 #include "tensor_ops.h"
 #include "tensor_threading.h"
 #include "tensor_utils.h"
-
 int main(int argc, char *argv[]) {
   
   // Create thread pool
   
-  ThreadPool* tp = thread_pool_create(1, 10);
+  ThreadPool* tp = thread_pool_create(2, 32);
 
   // Create two matrices
   Matrix *mat1 = matrix_create(3, 3);

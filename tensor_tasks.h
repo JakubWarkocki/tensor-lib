@@ -3,8 +3,8 @@
 
 #include "tensor_base.h"
 
-void single_multiplication_task(Matrix* mat1, Matrix* mat2, float* result, int* result_x, int* result_y);
-void single_convolution_task(Matrix* mat, Matrix* filter, float* result, int* result_x, int* result_y, int* stride, int* add_padding);
+void single_multiplication_task(Matrix* mat1, Matrix* mat2, float* result, int result_x, int result_y);
+void single_convolution_task(Matrix* mat, Matrix* filter, float* result, int result_x, int result_y, int stride, int add_padding);
 
 typedef enum {
     MULTIPLICATION_TASK,
@@ -12,7 +12,7 @@ typedef enum {
     FUNCTION_TASK,
 } TaskType;
 
-typedef struct {
+typedef struct s_task_block {
     TaskType task_type;
     Matrix* mat1;
     Matrix* mat2;

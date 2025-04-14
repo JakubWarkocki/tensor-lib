@@ -2,11 +2,10 @@
 #define GEN_BUF_H
 
 #include <pthread.h>
-#include <semaphore.h>
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct {
+typedef struct s_generic_buffer {
   pthread_mutex_t access;
   pthread_cond_t cond_insert;
   pthread_cond_t cond_remove;

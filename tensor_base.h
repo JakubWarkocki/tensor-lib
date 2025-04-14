@@ -9,7 +9,7 @@
 
 // MATRIX AND TENSOR STRUCTS
 
-typedef struct {
+typedef struct s_matrix {
   int dim_x;
   int dim_y;
   float *data;

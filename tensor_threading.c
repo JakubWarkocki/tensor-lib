@@ -5,8 +5,8 @@
 void* worker_thread_routine(void* void_args) {
   WorkerThreadArgs* args = (WorkerThreadArgs*) void_args;
   TaskBlock current_task;
-  pthread_barrier_wait(args->await_barrier);
   while(1) {
+    pthread_barrier_wait(args->await_barrier);
     pthread_mutex_lock(args->cond_block);
     fprintf(stderr, "%lu Waiting for request to enter a new thread pool cycle  \n", args->tid);
     pthread_cond_wait(args->start_cond, args->cond_block);
@@ -31,6 +31,7 @@ ThreadPool* thread_pool_create(int max_threads, int buffer_capacity) {
   }
   
   new_tp->n_threads = max_threads;
+  new_tp->is_running = 0;
 
   if (pthread_barrier_init(&new_tp->await_barrier, NULL, max_threads+1)) {
     free(new_tp);
@@ -93,7 +94,6 @@ ThreadPool* thread_pool_create(int max_threads, int buffer_capacity) {
     }
     pthread_detach((new_tp->threads+i)->tid);
   }
-  pthread_barrier_wait(&new_tp->await_barrier);
   return new_tp;
 }
 
@@ -115,6 +115,7 @@ void thread_pool_run(ThreadPool *tp) {
   pthread_mutex_lock(&tp->cond_block);
   gen_buf_start(tp->task_buffer);
   pthread_mutex_unlock(&tp->cond_block);
+  pthread_barrier_wait(&tp->await_barrier);
   pthread_cond_broadcast(&tp->start_cond);
 }
 
