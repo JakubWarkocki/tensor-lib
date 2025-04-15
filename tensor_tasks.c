@@ -1,14 +1,13 @@
 #include "tensor_tasks.h"
-#include <stdio.h>
 
-void single_multiplication_task(Matrix *mat1, Matrix *mat2, float *result, int result_x, int result_y) {
+void single_multiplication_task(Matrix *mat1, Matrix *mat2, float * restrict result, int result_x, int result_y) {
       *result = (float)(0);
       for (int i = 0; i < mat1->dim_x; ++i) {
         *result += (*MATRIX_ELEM(mat1, i, result_y)) * (*MATRIX_ELEM(mat2, result_x, i));
       }
 }
 
-void single_convolution_task(Matrix *mat, Matrix *filter, float *result, int result_x, int result_y, int stride, int add_padding) {
+void single_convolution_task(Matrix *mat, Matrix *filter, float * restrict result, int result_x, int result_y, int stride, int add_padding) {
   // NOT IMPLEMENTED
   return;
 }

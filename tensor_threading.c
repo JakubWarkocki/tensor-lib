@@ -1,6 +1,5 @@
 #include "tensor_threading.h"
 #include <pthread.h>
-#include <stdio.h>
 
 void worker_thread_exit(WorkerThreadArgs* args) {
   pthread_mutex_lock(args->guard);
@@ -19,7 +18,6 @@ void* worker_thread_routine(void* void_args) {
   WorkerThreadArgs* args = (WorkerThreadArgs*) void_args;
   TaskBlock current_task;
   while(1) {
-    fprintf(stderr, "%lu Waiting for request to enter a new thread pool cycle  \n", args->tid);
     pthread_barrier_wait(args->await_barrier);
     pthread_mutex_lock(args->guard);
     if(*args->stop_flag) {
@@ -27,13 +25,9 @@ void* worker_thread_routine(void* void_args) {
       break;
     }
     pthread_mutex_unlock(args->guard);
-    fprintf(stderr, "%lu Entered thread pool cycle \n", args->tid);
     while(gen_buf_remove_elem(args->task_buffer, &current_task)) {
-      fprintf(stderr, "%lu Running a task block \n", args->tid);
       task_block_run(&current_task);
-      fprintf(stderr, "%lu Finished a task block \n", args->tid);
     }
-    fprintf(stderr, "%lu Finished thread pool cycle \n", args->tid);
     pthread_barrier_wait(args->await_barrier);
   }
   worker_thread_exit(args);

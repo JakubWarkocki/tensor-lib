@@ -1,27 +1,24 @@
-all: demo
+CC      := gcc
+CFLAGS  := -Wall -Wextra -Wpedantic -O3 -Ofast -std=gnu99 -pthread -march=native
+LDFLAGS := -pthread
 
-demo: demo.c build/tensor_base build/tensor_ops build/tensor_utils build/gen_buf build/tensor_threading 
-	gcc -Wall -o build/demo demo.c build/tensor_base build/tensor_ops build/tensor_utils build/gen_buf build/tensor_threading build/tensor_tasks
+BUILD_DIR := build
+TARGET    := $(BUILD_DIR)/demo
 
-build/tensor_base: tensor_base.c tensor_base.h
-	gcc -Wall -c -O0 -o build/tensor_base tensor_base.c
+SOURCES := demo.c tensor_base.c tensor_ops.c tensor_utils.c gen_buf.c tensor_threading.c tensor_tasks.c
 
-build/tensor_utils: tensor_utils.c tensor_utils.h build/tensor_base
-	gcc -Wall -c -O0 -o build/tensor_utils tensor_utils.c
+OBJS := $(patsubst %.c, $(BUILD_DIR)/%.o, $(SOURCES))
 
-build/tensor_ops: tensor_ops.c tensor_ops.h build/tensor_base build/tensor_tasks build/tensor_threading
-	gcc -Wall -c -O0 -o build/tensor_ops tensor_ops.c
+all: $(TARGET)
 
-build/tensor_tasks: tensor_tasks.c tensor_tasks.h build/tensor_base
-	gcc -Wall -c -O0 -o build/tensor_tasks tensor_tasks.c
+$(TARGET): $(OBJS)
+	$(CC) $(LDFLAGS) -o $@ $^
 
-build/gen_buf: gen_buf.c gen_buf.h
-	gcc -Wall -c -pthread -O0 -o build/gen_buf gen_buf.c
-
-build/tensor_threading: tensor_threading.c tensor_threading.h build/gen_buf build/tensor_tasks
-	gcc -Wall -c -pthread -O0 -o build/tensor_threading tensor_threading.c
-	
-.PHONY: clean all
+$(BUILD_DIR)/%.o: %.c
+	@mkdir -p $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f build/*
+	@rm -rf $(BUILD_DIR)
+
+.PHONY: all clean

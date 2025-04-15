@@ -92,7 +92,7 @@ int gen_buf_remove_elem(GenericBuffer *gbf, void *dst) {
       return 0;
     }
     pthread_cond_wait(&gbf->cond_remove, &gbf->access);
-    if(gbf->stop_flag) {
+    if(gbf->stop_flag && gbf->count == 0) {
       pthread_mutex_unlock(&gbf->access);
       return 0;
     }
