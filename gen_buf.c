@@ -1,5 +1,6 @@
 #include "gen_buf.h"
 #include <pthread.h>
+#include <stdio.h>
 
 GenericBuffer *gen_buf_create(int e_size, int cap) {
 
@@ -55,7 +56,6 @@ void gen_buf_delete(GenericBuffer *gbf) {
     return;
   }
   
-  pthread_mutex_lock(&gbf->access);
   pthread_mutex_destroy(&gbf->access);
   pthread_cond_destroy(&gbf->cond_insert);
   pthread_cond_destroy(&gbf->cond_remove);

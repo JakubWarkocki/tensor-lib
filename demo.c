@@ -6,7 +6,7 @@ int main(int argc, char *argv[]) {
   
   // Create thread pool
   
-  ThreadPool* tp = thread_pool_create(2, 32);
+  ThreadPool* tp = thread_pool_create(24, 1024);
 
   // Create two matrices
   Matrix *mat1 = matrix_create(3, 3);
@@ -58,8 +58,10 @@ int main(int argc, char *argv[]) {
   matrix_delete(mat1);
   matrix_delete(mat2);
   matrix_delete(result);
-  thread_pool_delete(tp);
 
+  fprintf(stderr, "\nThread pool delete");
+  thread_pool_delete(tp);
+  fprintf(stderr, "\nThread pool deleted\n");
 
 
   printf("\nGeneric buffer test (int) :\n");

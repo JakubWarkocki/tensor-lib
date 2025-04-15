@@ -2,16 +2,32 @@
 #include <pthread.h>
 #include <stdio.h>
 
+void worker_thread_exit(WorkerThreadArgs* args) {
+  pthread_mutex_lock(args->guard);
+  (*args->n_stopped_threads)++;
+  if(*args->n_stopped_threads == *args->n_threads) {
+    pthread_mutex_unlock(args->guard);
+    pthread_cond_signal(args->exit_cond);
+  }
+  else {
+  pthread_mutex_unlock(args->guard);
+  }
+}
+
+
 void* worker_thread_routine(void* void_args) {
   WorkerThreadArgs* args = (WorkerThreadArgs*) void_args;
   TaskBlock current_task;
   while(1) {
-    pthread_barrier_wait(args->await_barrier);
-    pthread_mutex_lock(args->cond_block);
     fprintf(stderr, "%lu Waiting for request to enter a new thread pool cycle  \n", args->tid);
-    pthread_cond_wait(args->start_cond, args->cond_block);
+    pthread_barrier_wait(args->await_barrier);
+    pthread_mutex_lock(args->guard);
+    if(*args->stop_flag) {
+      pthread_mutex_unlock(args->guard);
+      break;
+    }
+    pthread_mutex_unlock(args->guard);
     fprintf(stderr, "%lu Entered thread pool cycle \n", args->tid);
-    pthread_mutex_unlock(args->cond_block);
     while(gen_buf_remove_elem(args->task_buffer, &current_task)) {
       fprintf(stderr, "%lu Running a task block \n", args->tid);
       task_block_run(&current_task);
@@ -20,8 +36,10 @@ void* worker_thread_routine(void* void_args) {
     fprintf(stderr, "%lu Finished thread pool cycle \n", args->tid);
     pthread_barrier_wait(args->await_barrier);
   }
-
+  worker_thread_exit(args);
+  return NULL;
 }
+
 
 ThreadPool* thread_pool_create(int max_threads, int buffer_capacity) {
 
@@ -31,22 +49,8 @@ ThreadPool* thread_pool_create(int max_threads, int buffer_capacity) {
   }
   
   new_tp->n_threads = max_threads;
-  new_tp->is_running = 0;
 
   if (pthread_barrier_init(&new_tp->await_barrier, NULL, max_threads+1)) {
-    free(new_tp);
-    return NULL;
-  }
-
-  if (pthread_cond_init(&new_tp->start_cond, NULL)) {
-    pthread_barrier_destroy(&new_tp->await_barrier);
-    free(new_tp);
-    return NULL;
-  }
-  
-  if (pthread_mutex_init(&new_tp->cond_block, NULL)) {
-    pthread_cond_destroy(&new_tp->start_cond);
-    pthread_barrier_destroy(&new_tp->await_barrier);
     free(new_tp);
     return NULL;
   }
@@ -54,9 +58,24 @@ ThreadPool* thread_pool_create(int max_threads, int buffer_capacity) {
   new_tp->task_buffer = gen_buf_create(sizeof(TaskBlock), buffer_capacity);
 
   if (!new_tp->task_buffer) {
-    pthread_cond_destroy(&new_tp->start_cond);
     pthread_barrier_destroy(&new_tp->await_barrier);
-    pthread_mutex_destroy(&new_tp->cond_block);
+    free(new_tp);
+    return NULL;
+  }
+
+
+  if (pthread_mutex_init(&new_tp->tp_mutex, NULL)) {
+    free(new_tp->threads);
+    gen_buf_delete(new_tp->task_buffer);
+    pthread_barrier_destroy(&new_tp->await_barrier);
+    free(new_tp);
+    return NULL;
+  }
+
+  if (pthread_cond_init(&new_tp->exit_cond, NULL)) {
+    pthread_mutex_destroy(&new_tp->tp_mutex);
+    gen_buf_delete(new_tp->task_buffer);
+    pthread_barrier_destroy(&new_tp->await_barrier);
     free(new_tp);
     return NULL;
   }
@@ -64,19 +83,22 @@ ThreadPool* thread_pool_create(int max_threads, int buffer_capacity) {
   new_tp->threads = (WorkerThreadArgs*) malloc(max_threads*sizeof(WorkerThreadArgs));
 
   if (!new_tp->threads) {
+    pthread_cond_destroy(&new_tp->exit_cond);
+    pthread_mutex_destroy(&new_tp->tp_mutex);
     gen_buf_delete(new_tp->task_buffer);
-    pthread_cond_destroy(&new_tp->start_cond);
     pthread_barrier_destroy(&new_tp->await_barrier);
-    pthread_mutex_destroy(&new_tp->cond_block);
     free(new_tp);
     return NULL;
   }
 
   for (int i = 0; i<max_threads; i++) {
     (new_tp->threads+i)->task_buffer = new_tp->task_buffer;
-    (new_tp->threads+i)->start_cond = &new_tp->start_cond;
     (new_tp->threads+i)->await_barrier = &new_tp->await_barrier;
-    (new_tp->threads+i)->cond_block = &new_tp->cond_block;
+    (new_tp->threads+i)->guard = &new_tp->tp_mutex;
+    (new_tp->threads+i)->stop_flag = &new_tp->stop_flag;
+    (new_tp->threads+i)->n_stopped_threads = &new_tp->n_stopped_threads;
+    (new_tp->threads+i)->n_threads = &new_tp->n_threads;
+    (new_tp->threads+i)->exit_cond = &new_tp->exit_cond;
   }
 
   for (int i = 0; i < max_threads; i++) {
@@ -84,10 +106,10 @@ ThreadPool* thread_pool_create(int max_threads, int buffer_capacity) {
       for(int j = 0; j < i; j++) {
         pthread_cancel((new_tp->threads+i)->tid);
       }
+      pthread_cond_destroy(&new_tp->exit_cond);
+      pthread_mutex_destroy(&new_tp->tp_mutex);
       gen_buf_delete(new_tp->task_buffer);
-      pthread_cond_destroy(&new_tp->start_cond);
       pthread_barrier_destroy(&new_tp->await_barrier);
-      pthread_mutex_destroy(&new_tp->cond_block);
       free(new_tp->threads);
       free(new_tp);
       return NULL;
@@ -98,30 +120,36 @@ ThreadPool* thread_pool_create(int max_threads, int buffer_capacity) {
 }
 
 void thread_pool_delete(ThreadPool *tp) {
-  pthread_mutex_lock(&tp->cond_block);
-  gen_buf_stop(tp->task_buffer);
-  for(int i = 0; i < tp->n_threads; i++) {
-    pthread_cancel((tp->threads+i)->tid);
+
+  pthread_mutex_lock(&tp->tp_mutex);
+  tp->stop_flag = 1;
+  pthread_mutex_unlock(&tp->tp_mutex);
+  pthread_barrier_wait(&tp->await_barrier);
+
+  pthread_mutex_lock(&tp->tp_mutex);
+  if(tp->n_stopped_threads == tp->n_threads) {
+    pthread_mutex_unlock(&tp->tp_mutex);
   }
+  else {
+    pthread_cond_wait(&tp->exit_cond, &tp->tp_mutex);
+    pthread_mutex_unlock(&tp->tp_mutex);
+  }
+
   gen_buf_delete(tp->task_buffer);
-  pthread_cond_destroy(&tp->start_cond);
+  pthread_mutex_destroy(&tp->tp_mutex);
+  pthread_cond_destroy(&tp->exit_cond);
   pthread_barrier_destroy(&tp->await_barrier);
-  pthread_mutex_destroy(&tp->cond_block);
   free(tp->threads);
   free(tp);
+  
 }
 
 void thread_pool_run(ThreadPool *tp) {
-  pthread_mutex_lock(&tp->cond_block);
   gen_buf_start(tp->task_buffer);
-  pthread_mutex_unlock(&tp->cond_block);
   pthread_barrier_wait(&tp->await_barrier);
-  pthread_cond_broadcast(&tp->start_cond);
 }
 
 void thread_pool_await(ThreadPool *tp) {
-  pthread_mutex_lock(&tp->cond_block);
   gen_buf_stop(tp->task_buffer);
-  pthread_mutex_unlock(&tp->cond_block);
   pthread_barrier_wait(&tp->await_barrier);
 }
