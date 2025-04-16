@@ -7,18 +7,16 @@ int main(int argc, char *argv[]) {
   // Create thread pool
   
   ThreadPool* tp = thread_pool_create(32, 1024);
-  
-
-  printf("Multiplying two 3000x3000 matrices...\n");
-  Matrix *mat1 = matrix_create(3000, 3000);
-  Matrix *mat2 = matrix_create(3000, 3000);
-
+    
+  Matrix *mat1 = matrix_create(3000, 3000, ROW_FIRST);
+  Matrix *mat2 = matrix_create(3000, 3000, COLUMN_FIRST);
+  Matrix *result = matrix_create(3000, 3000, COLUMN_FIRST);
   if (!mat1 || !mat2) {
     printf("Failed to create matrices\n");
     return 1;
   }
+  printf("Multiplying two 3000x3000 matrices...\n");
 
-  // Populate matrices using safe functions
   for (int i = 0; i < mat1->dim_y; i++) {
     for (int j = 0; j < mat1->dim_x; j++) {
       matrix_elem_set(mat1, j, i, (float)(1 + i * j));
@@ -30,9 +28,6 @@ int main(int argc, char *argv[]) {
       matrix_elem_set(mat2, j, i, (float)(1 + i + j));
     }
   }
-
-  // Create a result matrix
-  Matrix *result = matrix_create(3000, 3000);
 
   if (!result) {
     printf("Failed to create result matrix\n");
@@ -53,17 +48,14 @@ int main(int argc, char *argv[]) {
   long seconds = end.tv_sec - start.tv_sec;
   long ms = (seconds * 1000) + (end.tv_nsec - start.tv_nsec) / 1000000;
   printf("Matrix multiplication completed in %ld ms\n", ms);
-
   matrix_delete(mat1);
   matrix_delete(mat2);
   matrix_delete(result);
 
-
-
   printf("\n Multiplying two small matrices...\n");
 
-  mat1 = matrix_create(3, 2);
-  mat2 = matrix_create(2, 3);
+  mat1 = matrix_create(3, 2, ROW_FIRST);
+  mat2 = matrix_create(2, 3, COLUMN_FIRST);
 
   if (!mat1 || !mat2) {
     printf("Failed to create matrices\n");
@@ -72,17 +64,17 @@ int main(int argc, char *argv[]) {
 
   for (int i = 0; i < mat1->dim_y; i++) {
     for (int j = 0; j < mat1->dim_x; j++) {
-      matrix_elem_set(mat1, j, i, (float)(1 + i * j));
+      matrix_elem_set(mat1, j, i, (float)(i+j));
     }
   }
 
   for (int i = 0; i < mat2->dim_y; i++) {
     for (int j = 0; j < mat2->dim_x; j++) {
-      matrix_elem_set(mat2, j, i, (float)(1 + i + j));
+      matrix_elem_set(mat2, j, i, (float)(i+j));
     }
   }
 
-  result = matrix_create(2, 2);
+  result = matrix_create(2, 2, ROW_FIRST);
 
   if (!result) {
     printf("Failed to create result matrix\n");
@@ -104,6 +96,10 @@ int main(int argc, char *argv[]) {
   printf("\nResultant Matrix:\n");
   matrix_print(result);
 
+
+  matrix_delete(mat1);
+  matrix_delete(mat2);
+  matrix_delete(result);
 
   thread_pool_delete(tp);
 

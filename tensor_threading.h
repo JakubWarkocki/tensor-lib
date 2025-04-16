@@ -5,6 +5,8 @@
 #include "tensor_tasks.h"
 #include <pthread.h>
 
+// WORKER THREADS
+
 typedef struct {
   pthread_t tid;
   GenericBuffer* task_buffer;
@@ -17,6 +19,8 @@ typedef struct {
 } WorkerThreadArgs;
 
 void* worker_thread_routine(void* args);
+
+// THREAD POOL
 
 typedef struct s_thread_pool {
   int n_threads;

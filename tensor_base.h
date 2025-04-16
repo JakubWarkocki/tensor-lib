@@ -7,9 +7,17 @@
 #include <string.h>
 #include <unistd.h>
 
+// MATRIX ORIENTATION ENUM
+
+typedef enum {
+  ROW_FIRST,
+  COLUMN_FIRST,
+} MatrixOrientation;
+
 // MATRIX AND TENSOR STRUCTS
 
 typedef struct s_matrix {
+  MatrixOrientation orientation;
   int dim_x;
   int dim_y;
   float *data;
@@ -24,15 +32,15 @@ typedef struct {
 
 // CONSTRUCTORS AND DESTRUCTORS
 
-Matrix *matrix_create(int x, int y);
+Matrix *matrix_create(int x, int y, MatrixOrientation orientation);
 void matrix_delete(Matrix *mat);
 Tensor3 *tensor_create(int x, int y, int z, int init);
 void tensor_delete(Tensor3 *tns);
 
 // MACROS FOR ELEMENT ACCESS
 
-#define MATRIX_ELEM(mat, x, y) ((mat->data + x + mat->dim_x * y))
-#define TENSOR_ELEM(tns, x, y, z) (MATRIX_ELEM(*(tns->data + z), x, y)
+#define MATRIX_ELEM_ROW_FIRST(mat, x, y) ((mat->data + x + (mat->dim_x * y)))
+#define MATRIX_ELEM_COL_FIRST(mat, x, y) ((mat->data + y + (mat->dim_y * x)))
 
 // TYPE SAFE FUNCTIONS FOR ELEMENT ACCESS
 

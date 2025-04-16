@@ -1,62 +1,119 @@
 #include "tensor_tasks.h"
 
-void single_multiplication_task(Matrix *mat1, Matrix *mat2, float * restrict result, int result_x, int result_y) {
-      *result = (float)(0);
-      for (int i = 0; i < mat1->dim_x; ++i) {
-        *result += (*MATRIX_ELEM(mat1, i, result_y)) * (*MATRIX_ELEM(mat2, result_x, i));
-      }
+inline void matmul_cc_task(float* v1, float* v2, float* restrict dst, int depth, int stride_1) {
+  for (int i = 0; i < depth; i++) {
+    *(dst) += *(v1) * *(v2);
+    v1 += stride_1;
+    v2++;
+  }
 }
 
-void single_convolution_task(Matrix *mat, Matrix *filter, float * restrict result, int result_x, int result_y, int stride, int add_padding) {
-  // NOT IMPLEMENTED
-  return;
+inline void matmul_rc_task(float* v1, float* v2, float* restrict dst, int depth) {
+  for (int i = 0; i < depth; i++) {
+    *(dst) += *(v1) * *(v2);
+    v1++;
+    v2++;
+  }
+}
+
+inline void matmul_cr_task(float* v1, float* v2, float* restrict dst, int depth, int stride_1, int stride_2) {
+  for (int i = 0; i < depth; i++) {
+    *(dst) += *(v1) * *(v2);
+    v1 += stride_1;
+    v2 += stride_2;
+  }
+}
+
+inline void matmul_rr_task(float* v1, float* v2, float* restrict dst, int depth, int stride_2) {
+  for (int i = 0; i < depth; i++) {
+    *(dst) += *(v1) * *(v2);
+    v1++;
+    v2 += stride_2;
+  }
 }
 
 void task_block_set_type(TaskBlock *tb, TaskType type) {
   tb->task_type = type;
 }
 
-void task_block_bind_matrices(TaskBlock *tb, Matrix *oprand_1, Matrix *oprand_2, Matrix *result) {
-  tb->mat1 = oprand_1;
-  tb->mat2 = oprand_2;
-  tb->dst_mat = result;
+void task_block_set_vector_length(TaskBlock *tb, int vlen) {
+  tb->vector_length = vlen;
 }
 
-void task_block_set_function(TaskBlock *tb, void (*fun)(float *)) {
-  tb->func = fun;
+void task_block_bind_startpoints(TaskBlock* tb, float *mat1, float *mat2, float *dst) {
+  tb->dst_start = dst;
+  tb->mat1_start = mat1;
+  tb->mat2_start = mat2;
 }
 
-void task_block_set_x_limits(TaskBlock *tb, int start_x, int end_x) {
-  tb->start_x = start_x;
-  tb->end_x = end_x;
+void task_block_set_dst_stride(TaskBlock* tb, int stride_x, int stride_y) {
+  tb->dst_stride_x = stride_x;
+  tb->dst_stride_y = stride_y;
 }
 
-void task_block_set_y_limits(TaskBlock *tb, int start_y, int end_y) {
-  tb->start_y = start_y;
-  tb->end_y = end_y;
+void task_block_set_oprand_stride(TaskBlock* tb, int stride_1, int stride_2) {
+  tb->mat1_stride = stride_1;
+  tb->mat2_stride = stride_2;
 }
 
-void task_block_set_conv_params(TaskBlock* tb, int stride, int add_padding) {
-  tb->conv_task_stride = stride;
-  tb->conv_task_add_padding = add_padding;
+void task_block_set_block_size(TaskBlock* tb, int block_size_x, int block_size_y) {
+  tb->block_size_x = block_size_x;
+  tb->block_size_y = block_size_y;
 }
 
-void task_block_run(TaskBlock *tb) {
+void task_block_run(TaskBlock * restrict tb) {
   switch(tb->task_type) {
-    case MULTIPLICATION_TASK:
-      for(int i=tb->start_x; i<=tb->end_x; i++) {
-        for(int j=tb->start_y; j<=tb->end_y; j++) {
-          single_multiplication_task(tb->mat1, tb->mat2, MATRIX_ELEM(tb->dst_mat, i, j), i, j); 
+    case MATMUL_CC:
+      for (int i = 0; i < tb->block_size_x; i++) {
+        for(int j = 0; j < tb->block_size_y; j++) {
+          matmul_cc_task(tb->mat1_start, tb->mat2_start, tb->dst_start, tb->vector_length, tb->mat1_stride);
+          tb->dst_start += tb->dst_stride_y;
+          tb->mat1_start++;
         }
+          tb->mat1_start -= tb->block_size_y;
+          tb->mat2_start += tb->mat2_stride;
+          tb->dst_start -= tb->dst_stride_y * tb->block_size_y;
+          tb->dst_start += tb->dst_stride_x;
       }
       break;
-    case CONVOLUTION_TASK:
-      break;
-    case FUNCTION_TASK:
-      for(int i=tb->start_x; i<=tb->end_x; i++) {
-        for(int j=tb->start_y; j<=tb->end_y; j++) {
-          tb->func(MATRIX_ELEM(tb->mat1, i, j));
+    case MATMUL_CR:
+
+      for (int i = 0; i < tb->block_size_x; i++) {
+        for(int j = 0; j < tb->block_size_y; j++) {
+          matmul_cr_task(tb->mat1_start, tb->mat2_start, tb->dst_start, tb->vector_length, tb->mat1_stride, tb->mat2_stride);
+          tb->dst_start += tb->dst_stride_y;
+          tb->mat1_start++;
         }
+          tb->mat1_start -= tb->block_size_y;
+          tb->mat2_start++;
+          tb->dst_start -= tb->dst_stride_y * tb->block_size_y;
+          tb->dst_start += tb->dst_stride_x;
+      }
+      break;
+    case MATMUL_RC:
+      for (int i = 0; i < tb->block_size_x; i++) {
+        for(int j = 0; j < tb->block_size_y; j++) {
+          matmul_rc_task(tb->mat1_start, tb->mat2_start, tb->dst_start, tb->vector_length);
+          tb->dst_start += tb->dst_stride_y;
+          tb->mat1_start += tb->mat1_stride;
+        }
+          tb->mat1_start -= tb->block_size_y * tb->mat1_stride;
+          tb->mat2_start += tb->mat2_stride;
+          tb->dst_start -= tb->dst_stride_y * tb->block_size_y;
+          tb->dst_start += tb->dst_stride_x;
+      }
+      break;
+    case MATMUL_RR:
+      for (int i = 0; i < tb->block_size_x; i++) {
+        for(int j = 0; j < tb->block_size_y; j++) {
+          matmul_rr_task(tb->mat1_start, tb->mat2_start, tb->dst_start, tb->vector_length, tb->mat2_stride);
+          tb->dst_start += tb->dst_stride_y;
+          tb->mat1_start += tb->mat1_stride;
+        }
+          tb->mat1_start -= tb->block_size_y * tb->mat1_stride;
+          tb->mat2_start++;
+          tb->dst_start -= tb->dst_stride_y * tb->block_size_y;
+          tb->dst_start += tb->dst_stride_x;
       }
       break;
   }

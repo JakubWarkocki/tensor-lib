@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// GENERIC CIRCULAR BUFFER DEDICATED FOR SINGLE PRODUCER MULTIPLE CONSUMER MODEL
+
 typedef struct s_generic_buffer {
   pthread_mutex_t access;
   pthread_cond_t cond_insert;

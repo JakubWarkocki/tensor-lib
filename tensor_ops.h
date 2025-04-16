@@ -5,6 +5,8 @@
 #include "tensor_threading.h"
 #include "tensor_tasks.h"
 
+// HIGH LEVEL OPERATIONS
+
 Matrix *matrix_multiply(Matrix *mat1, Matrix *mat2, Matrix *mat, ThreadPool *wtp);
 
 #endif

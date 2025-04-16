@@ -2,10 +2,12 @@
 
 // CONSTRUCTORS AND DESTRUCTORS
 
-Matrix *matrix_create(int x, int y) {
+Matrix *matrix_create(int x, int y, MatrixOrientation orientation) {
+
   if (x <= 0 || y <= 0) {
     return NULL;
   }
+
   Matrix *mat = (Matrix *)malloc(sizeof(Matrix));
   if (!mat) {
     return NULL;
@@ -13,11 +15,15 @@ Matrix *matrix_create(int x, int y) {
 
   mat->dim_x = x;
   mat->dim_y = y;
+
   mat->data = (float *)malloc(x * y * sizeof(float));
   if (!mat->data) {
     free(mat);
     return NULL;
   }
+
+  mat->orientation = orientation;
+
   return mat;
 }
 
@@ -41,7 +47,7 @@ Tensor3 *tensor_create(int x, int y, int z, int init) {
   }
   if (init) {
     for (int i = 0; i < z; i++) {
-      tns->data[i] = matrix_create(x, y);
+      tns->data[i] = matrix_create(x, y, ROW_FIRST);
       if (!tns->data[i]) {
         for (int j = 0; j < i; j++) {
           matrix_delete(tns->data[j]);
@@ -73,8 +79,15 @@ float *matrix_elem(Matrix *mat, int x, int y) {
   if (x < 0 || y < 0 || x >= mat->dim_x || y >= mat->dim_y) {
     return NULL;
   }
-
-  return MATRIX_ELEM(mat, x, y);
+  
+  switch (mat->orientation) {
+    case ROW_FIRST:
+      return MATRIX_ELEM_ROW_FIRST(mat, x, y);
+    case COLUMN_FIRST:
+      return MATRIX_ELEM_COL_FIRST(mat, x, y);
+    default:
+      return NULL;
+  }
 }
 
 float matrix_elem_get(Matrix *mat, int x, int y) {

@@ -5,10 +5,9 @@ void matrix_print(Matrix *mat) {
     printf("NULL MATRIX\n");
     return;
   }
-
   for (int i = 0; i < mat->dim_y; i++) {
     for (int j = 0; j < mat->dim_x; j++) {
-      printf("%.2e ", *(MATRIX_ELEM(mat, j, i)));
+      printf("%.2e ", matrix_elem_get(mat, j, i));
     }
     printf("\n");
   }

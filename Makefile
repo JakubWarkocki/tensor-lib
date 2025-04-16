@@ -1,5 +1,5 @@
 CC      := gcc
-CFLAGS  := -Wall -Wextra -Wpedantic -O3 -Ofast -std=gnu99 -pthread -march=native
+CFLAGS  := -Wall -Wextra -Wpedantic -O3 -Ofast -std=gnu99 -pthread -march=native -mavx2 -mfma
 LDFLAGS := -pthread
 
 BUILD_DIR := build
