@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+ 
 
 // MATRIX ORIENTATION ENUM
 
@@ -16,7 +17,7 @@ typedef enum {
 
 // MATRIX AND TENSOR STRUCTS
 
-typedef struct s_matrix {
+typedef struct s_matr {
   MatrixOrientation orientation;
   int dim_x;
   int dim_y;

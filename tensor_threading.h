@@ -33,8 +33,14 @@ typedef struct s_thread_pool {
   pthread_cond_t exit_cond;
 } ThreadPool;
 
+
+// CONSTRUCTORS AND DESTRUCTORS
+
 ThreadPool* thread_pool_create(int max_threads, int buffer_capacity);
 void thread_pool_delete(ThreadPool* tp);
+
+// SYNC FUNCTIONS
+
 void thread_pool_run(ThreadPool* tp);
 void thread_pool_await(ThreadPool* tp);
 

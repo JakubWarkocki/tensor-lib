@@ -20,10 +20,18 @@ typedef struct s_generic_buffer {
   void *data;
 } GenericBuffer;
 
+// CONSTRUCTORS AND DESTRUCTORS
+
 GenericBuffer *gen_buf_create(int e_size, int cap);
 void gen_buf_delete(GenericBuffer *gbf);
+
+// INSERTING AND REMOVING ELEMENTS
 void gen_buf_insert_elem(GenericBuffer *gbf, void *src);
+
+// RETURNS 1 ON SUCCESS, 0 WHEN BUFFER IS EMPTY AND STOP_FLAG IS SET
 int gen_buf_remove_elem(GenericBuffer *gbf, void *dst);
+
+// STARTING AND STOPPING THE BUFFER, STOPPING WAKES UP ALL THREADS WAITING FOR ELEMENTS 
 void gen_buf_start(GenericBuffer *gbf);
 void gen_buf_stop(GenericBuffer *gbf);
 

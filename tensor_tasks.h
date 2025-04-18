@@ -7,18 +7,12 @@
 // TASK TYPES WITH SINGULAR FUNCTIONS
 
 typedef enum {
-    MATMUL_CC,
-    MATMUL_CR,
-    MATMUL_RC,
-    MATMUL_RR
+    MATMUL,
 } TaskType;
 
-// DOT PRODUCT CALCULATIONS FOR DIFFERENTLY ORIENTED MATRICES
+// ELEMENTARY TASKS
 
-void matmul_cc_task(float* v1, float* v2, float* dst, int depth, int stride_1);
-void matmul_rc_task(float* v1, float* v2, float* dst, int depth);
-void matmul_cr_task(float* v1, float* v2, float* dst, int depth, int stride_1, int stride_2);
-void matmul_rr_task(float* v1, float* v2, float* dst, int depth, int stride_2);
+void dot_product_task(const float* v1, const float* v2, float* dst, int depth);
 
 // TASK BLOCKS FOR WORKER THREADS
 

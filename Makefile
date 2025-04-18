@@ -1,6 +1,6 @@
 CC      := gcc
-CFLAGS  := -Wall -Wextra -Wpedantic -O3 -Ofast -std=gnu99 -pthread -march=native -mavx2 -mfma
-LDFLAGS := -pthread
+CFLAGS  := -Wall -Wextra -Wpedantic -Ofast -std=gnu99 -flto -pthread -march=native -mtune=native
+LDFLAGS := -pthread -flto
 
 BUILD_DIR := build
 TARGET    := $(BUILD_DIR)/demo

@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
     
   Matrix *mat1 = matrix_create(3000, 3000, ROW_FIRST);
   Matrix *mat2 = matrix_create(3000, 3000, COLUMN_FIRST);
-  Matrix *result = matrix_create(3000, 3000, COLUMN_FIRST);
+  Matrix *result = matrix_create(3000, 3000, ROW_FIRST);
   if (!mat1 || !mat2) {
     printf("Failed to create matrices\n");
     return 1;
@@ -54,8 +54,8 @@ int main(int argc, char *argv[]) {
 
   printf("\n Multiplying two small matrices...\n");
 
-  mat1 = matrix_create(3, 2, ROW_FIRST);
-  mat2 = matrix_create(2, 3, COLUMN_FIRST);
+  mat1 = matrix_create(1, 10, ROW_FIRST);
+  mat2 = matrix_create(10, 1, COLUMN_FIRST);
 
   if (!mat1 || !mat2) {
     printf("Failed to create matrices\n");
@@ -64,17 +64,18 @@ int main(int argc, char *argv[]) {
 
   for (int i = 0; i < mat1->dim_y; i++) {
     for (int j = 0; j < mat1->dim_x; j++) {
-      matrix_elem_set(mat1, j, i, (float)(i+j));
+      matrix_elem_set(mat1, j, i, (float)(i+j+1));
     }
   }
 
   for (int i = 0; i < mat2->dim_y; i++) {
     for (int j = 0; j < mat2->dim_x; j++) {
-      matrix_elem_set(mat2, j, i, (float)(i+j));
+      matrix_elem_set(mat2, j, i, (float)(i+j+1));
     }
   }
 
-  result = matrix_create(2, 2, ROW_FIRST);
+
+  result = matrix_create(10, 10, ROW_FIRST);
 
   if (!result) {
     printf("Failed to create result matrix\n");
