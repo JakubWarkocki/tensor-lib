@@ -98,7 +98,7 @@ ThreadPool* thread_pool_create(int max_threads, int buffer_capacity) {
   for (int i = 0; i < max_threads; i++) {
     if(pthread_create(&((new_tp->threads+i)->tid), NULL, worker_thread_routine, (void*)(new_tp->threads+i))) {
       for(int j = 0; j < i; j++) {
-        pthread_cancel((new_tp->threads+i)->tid);
+        pthread_cancel((new_tp->threads+j)->tid);
       }
       pthread_cond_destroy(&new_tp->exit_cond);
       pthread_mutex_destroy(&new_tp->tp_mutex);
@@ -108,8 +108,12 @@ ThreadPool* thread_pool_create(int max_threads, int buffer_capacity) {
       free(new_tp);
       return NULL;
     }
+  }
+
+  for (int i = 0; i < max_threads; i++) {
     pthread_detach((new_tp->threads+i)->tid);
   }
+
   return new_tp;
 }
 

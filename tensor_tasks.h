@@ -4,23 +4,19 @@
 #include "tensor_base.h"
 
 
-// TASK TYPES WITH SINGULAR FUNCTIONS
+// TASK TYPES
 
 typedef enum {
     MATMUL,
+    CONVOLVE,
+    T_CONVOLVE,
 } TaskType;
 
-// ELEMENTARY TASKS
+// TASK TYPE SPECIFIC DETAILS
 
-void dot_product_task(const float* v1, const float* v2, float* dst, int depth);
+// MATRIX MULTIPLICATION
 
-// TASK BLOCKS FOR WORKER THREADS
-
-typedef struct s_task_block {
-    TaskType task_type;
-    float* mat1_start;
-    float* mat2_start;
-    float* dst_start;
+typedef struct s_matmul_details {
     int vector_length;
     int mat1_stride;
     int mat2_stride;
@@ -28,6 +24,37 @@ typedef struct s_task_block {
     int dst_stride_y;
     int block_size_x;
     int block_size_y;
+} MatMulDetails;
+
+// CONVOLUTION
+
+typedef struct s_convolve_details {
+    int vector_length;
+    int mat1_stride;
+    int mat2_stride;
+    int block_length;
+} ConvolveDetails;
+
+// TRASPOSE CONVOLUTION
+
+typedef struct s_t_convolve_details {
+    int placeholder;
+} TConvolveDetails;
+
+// TASK BLOCK
+
+typedef union u_task_details {
+    MatMulDetails matmul;
+    ConvolveDetails convolve;
+    TConvolveDetails t_convolve;
+} TaskDetails;
+
+typedef struct s_task_block {
+    TaskType task_type;
+    float* mat1_start;
+    float* mat2_start;
+    float* dst_start;
+    TaskDetails task_details;
 } TaskBlock;
 
 void task_block_set_type(TaskBlock* tb, TaskType type);
