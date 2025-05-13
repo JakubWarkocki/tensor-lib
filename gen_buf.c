@@ -74,7 +74,7 @@ void gen_buf_insert_elem(GenericBuffer *gbf, void *src) {
     }
     pthread_cond_wait(&gbf->cond_insert, &gbf->access);
   }
-  memcpy(gbf->data + (gbf->elem_size) * (gbf->head), src, gbf->elem_size);
+  memcpy((char*)(gbf->data) + (gbf->elem_size) * (gbf->head), src, gbf->elem_size);
   gbf->head = (gbf->head + 1) % gbf->capacity;
   ++gbf->count;
   if(gbf->count == 1) {
@@ -93,7 +93,7 @@ int gen_buf_remove_elem(GenericBuffer *gbf, void *dst) {
     }
     pthread_cond_wait(&gbf->cond_remove, &gbf->access);
   }
-  memcpy(dst, gbf->data + (gbf->elem_size) * (gbf->tail), gbf->elem_size);
+  memcpy(dst, (char*)(gbf->data) + (gbf->elem_size) * (gbf->tail), gbf->elem_size);
   gbf->tail = (gbf->tail + 1) % gbf->capacity;
   --gbf->count;
   if(gbf->count == gbf->capacity-1) {

@@ -3,7 +3,6 @@
 
 #include "tensor_base.h"
 
-
 // PRINTING FUNCTIONS
 
 void matrix_print(Matrix *mat);

@@ -117,6 +117,7 @@ ThreadPool* thread_pool_create(int max_threads, int buffer_capacity) {
   return new_tp;
 }
 
+
 void thread_pool_delete(ThreadPool *tp) {
 
   pthread_mutex_lock(&tp->tp_mutex);

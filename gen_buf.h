@@ -13,7 +13,7 @@ typedef struct s_generic_buffer {
   pthread_cond_t cond_remove;
   size_t elem_size;
   size_t capacity;
-  int count;
+  size_t count;
   int head;
   int tail;
   int stop_flag;

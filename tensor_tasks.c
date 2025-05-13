@@ -1,54 +1,6 @@
+#include "vectorised_ops.h"
 #include "tensor_tasks.h"
-
-inline void vector_dot_product(const float* restrict v1, const float* restrict v2, float* restrict dst, const int vlen) {
-  float sum = 0.0f;
-  for (int i = 0; i < vlen; i++) {
-    sum += v1[i] * v2[i];
-  }
-  *dst = sum;
-}
-
-inline void vector_element_wise_mul(const float * restrict v1, const float * restrict v2, float* restrict dst, const int vlen) {
-  for(int i=0; i<vlen; i++) {
-    dst[i] = v1[i] * v2[i];
-  }
-}
-
-inline void vector_add(const float * restrict v1, const float * restrict v2, float* restrict dst, const int vlen) {
-  for(int i=0; i<vlen; i++) {
-    dst[i] = v1[i] + v2[i];
-  }
-}
-
-inline void vector_add_mul(const float * restrict v1, const float * restrict v2, const float sca, float* restrict dst, const int vlen) {
-  for(int i=0; i<vlen; i++) {
-    dst[i] = v1[i] + (sca * v2[i]);
-  }
-}
-
-inline void vector_scalar_mul(const float * restrict v1, const float sca, float* restrict dst, const int vlen) {
-  for(int i=0; i<vlen; i++) {
-    dst[i] = v1[i] * sca;
-  }
-}
-
-inline void vector_scalar_add(const float * restrict v1, const float sca, float* restrict dst, const int vlen) {
-  for(int i=0; i<vlen; i++) {
-    dst[i] = v1[i] + sca;
-  }
-}
-
-inline void vector_scalar_set(float * restrict dst, const float sca, const int vlen){
-  for(int i=0; i<vlen; i++) {
-    dst[i] = sca;
-  }
-}
-
-inline void vector_copy(const float * restrict src, float* restrict dst, const int vlen) {
-  for(int i=0; i<vlen; i++) {
-    dst[i] = src[i];
-  }
-}
+#include <immintrin.h>
 
 void task_block_set_type(TaskBlock *tb, TaskType type) {
   tb->task_type = type;
@@ -95,10 +47,8 @@ void task_block_run(TaskBlock * restrict tb) {
       }
       break;
     case CONVOLVE:
-      // Convolution logic here
       break;
     case T_CONVOLVE:
-      // Transpose Convolution logic here
       break;
   }
 }

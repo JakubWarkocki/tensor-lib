@@ -1,4 +1,5 @@
 #include "tensor_base.h"
+#include <stdlib.h>
 
 // CONSTRUCTORS AND DESTRUCTORS
 
@@ -16,8 +17,8 @@ Matrix *matrix_create(int x, int y, MatrixOrientation orientation) {
   mat->dim_x = x;
   mat->dim_y = y;
 
-  mat->data = (float *)malloc(x * y * sizeof(float));
-  if (!mat->data) {
+  mat->data = (float *) aligned_alloc(64, x * y * sizeof(float));
+  if (!mat->data) { 
     free(mat);
     return NULL;
   }
